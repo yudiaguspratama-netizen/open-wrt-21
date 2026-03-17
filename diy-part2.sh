@@ -1,20 +1,17 @@
 #!/bin/bash
-#
-# https://github.com/P3TERX/Actions-OpenWrt
-# File name: diy-part2.sh
-# Description: OpenWrt DIY script part 2 (After Update feeds)
-#
-# Copyright (c) 2019-2024 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
 
-# Modify default IP
-#sed -i 's/192.168.1.1/192.168.50.5/g' package/base-files/files/bin/config_generate
+# 1. Atur IP Default ke 192.168.1.1 (Ubah jika perlu)
+sed -i 's/192.168.1.1/192.168.1.1/g' package/base-files/files/bin/config_generate
 
-# Modify default theme
-#sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+# 2. AKTIFKAN WIFI ON DEFAULT (Crucial!)
+# Menghapus 'disabled 1' agar WiFi langsung memancar setelah flash
+sed -i 's/set wireless.radio${devidx}.disabled=1/set wireless.radio${devidx}.disabled=0/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
 
-# Modify hostname
-#sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
+# 3. Optimasi RAM 64MB (ZRAM & Logging)
+# Mengecilkan ukuran log di RAM agar tidak penuh
+sed -i 's/log_size/log_size 512/g' package/base-files/files/bin/config_generate
+
+# 4. Memastikan dependencies EQOS ikut terpilih
+echo "CONFIG_PACKAGE_luci-app-eqos=m" >> .config
+echo "CONFIG_PACKAGE_kmod-sched-core=y" >> .config
+echo "CONFIG_PACKAGE_tc-tiny=y" >> .config
